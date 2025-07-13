@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 
 def show_iris():
     # Upload iris.csv file
-    df = pd.read_csv("pages\iris\iris.csv")
+    df = pd.read_csv("pages/iris/iris.csv")
     # st.dataframe(df.head())
     # st.write(df.describe())
 
@@ -31,7 +31,7 @@ def show_iris():
     flower=clf.predict(np.array(input).reshape(1,4))[0].upper()
     st.success(f'The Flower is: {flower}')
     if flower == "SETOSA":
-        st.image("pages\iris\setosa.jpeg", width=500, caption="Iris Setosa")
+        st.image("pages/iris/setosa.jpeg", width=500, caption="Iris Setosa")
 
     elif flower == "VERSICOLOR":
         st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg", width=500, caption="Iris Versicolor")
