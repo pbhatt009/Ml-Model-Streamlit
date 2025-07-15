@@ -28,12 +28,13 @@ def show_iris():
     petal_length = st.slider("Petal Length", min_value=1.0, max_value=8.0,step=0.1)
     petal_width = st.slider("Petal Width", min_value=0.0, max_value=3.0,step=0.1)
     input=[sepal_length,sepal_width,petal_length,petal_width]
-    flower=clf.predict(np.array(input).reshape(1,4))[0].upper()
-    st.success(f'The Flower is: {flower}')
-    if flower == "SETOSA":
-        st.image("pages/iris/setosa.jpeg", width=500, caption="Iris Setosa")
+    if st.button("Predict Flower"):
+        flower=clf.predict(np.array(input).reshape(1,4))[0].upper()
+        st.success(f'The Flower is: {flower}')
+        if flower == "SETOSA":
+            st.image("pages/iris/setosa.jpeg", width=500, caption="Iris Setosa")
 
-    elif flower == "VERSICOLOR":
-        st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg", width=500, caption="Iris Versicolor")
-    elif flower == "VIRGINICA":
-        st.image("https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg", width=500, caption="Iris Virginica")
+        elif flower == "VERSICOLOR":
+            st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg", width=500, caption="Iris Versicolor")
+        elif flower == "VIRGINICA":
+            st.image("https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg", width=500, caption="Iris Virginica")
