@@ -15,6 +15,16 @@ def go_to(page_name):
 def back_home():
     st.session_state.page = "home"
 
+def go_to_notebook(url):
+    st.markdown(f"""
+        <a href="{url}" target="_blank">
+            <button style='padding: 0.5em 1em; font-size: 16px; border: 0.01rem solid; background: none;'>📘 Open Notebook</button>
+        </a>
+    """, unsafe_allow_html=True)
+
+
+    
+
 # --- Page: Home ---
 if st.session_state.page == "home":
     st.title("🧠 Welcome to ML Model Showcase")
@@ -33,6 +43,7 @@ if st.session_state.page == "home":
 ############# Heart Deases Prediction ##########
     with col2:
         st.button("🫀 Heart Deases Prediction", on_click=go_to, args=("heart",))
+        go_to_notebook("https://github.com/pbhatt009/ml-project-notebooks/blob/main/Heart-Disease/main.ipynb")
         st.image("heart.jpg", width=300)
 
 
