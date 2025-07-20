@@ -1,5 +1,6 @@
 import streamlit as st
 from pages.iris.iris import show_iris
+from pages.Heart.main import Heart
 
 st.set_page_config(page_title="ML App", layout="wide")
 
@@ -41,9 +42,8 @@ if st.session_state.page == "home":
 elif st.session_state.page == "iris":
     st.button("🔙 Back", on_click=back_home)
     show_iris()
-  
-    
-    
 
-
+elif st.session_state.page == "heart":
+    st.button("🔙 Back", on_click=back_home)
+    Heart()
 
