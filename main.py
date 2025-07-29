@@ -43,7 +43,7 @@ if st.session_state.page == "home":
 ############# Heart Deases Prediction ##########
     with col2:
         st.button("🫀 Heart Deases Prediction", on_click=go_to, args=("heart",))
-        go_to_notebook("https://github.com/pbhatt009/ml-project-notebooks/blob/main/Heart-Disease/main.ipynb")
+        go_to_notebook("https://www.kaggle.com/code/pbhatt009/heart-disease-predication")
         st.image("heart.jpg", width=300)
 
 
