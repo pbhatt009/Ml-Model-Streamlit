@@ -1,6 +1,14 @@
 import streamlit as st
 from pages.iris.iris import show_iris
 from pages.Heart.main import Heart
+from pages.Banking_Complaint.bank import bank_fn
+import sys
+
+
+from pages.Banking_Complaint.Text_preprocess import TextPreprocessor
+# Map __main__.TextPreprocessor to the actual class
+sys.modules['__main__'].TextPreprocessor = TextPreprocessor
+
 
 st.set_page_config(page_title="ML App", layout="wide")
 
@@ -31,7 +39,7 @@ if st.session_state.page == "home":
 
     st.markdown("### Choose a model to explore:")
 
-    col1,col2= st.columns(2)
+    col1,col2,col3= st.columns(3)
 
 ###############  IRIS DATSET #################
 
@@ -46,8 +54,11 @@ if st.session_state.page == "home":
         go_to_notebook("https://www.kaggle.com/code/pbhatt009/heart-disease-predication")
         st.image("heart.jpg", width=300)
 
+############# Banking Complaint Classifier ##########
+    with col3:
+        st.button("🏦 Banking Complaint Classifier", on_click=go_to, args=("banking",))
 
-
+        st.image("bank.jpg", width=300)
 
 ######             Naviagtion   #############
 elif st.session_state.page == "iris":
@@ -57,4 +68,8 @@ elif st.session_state.page == "iris":
 elif st.session_state.page == "heart":
     st.button("🔙 Back", on_click=back_home)
     Heart()
+
+elif st.session_state.page == "banking":
+    st.button("🔙 Back", on_click=back_home)
+    bank_fn()
 
