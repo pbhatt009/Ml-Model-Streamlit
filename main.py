@@ -1,75 +1,86 @@
 import streamlit as st
-from pages.iris.iris import show_iris
-from pages.Heart.main import Heart
-from pages.Banking_Complaint.bank import bank_fn
+import joblib
+import numpy as np
+import pandas as pd
+import pathlib
 import sys
+from Text_preprocess import TextPreprocessor
 
-
-from pages.Banking_Complaint.Text_preprocess import TextPreprocessor
-# Map __main__.TextPreprocessor to the actual class
+# Map __main__.TextPreprocessor to avoid joblib errors
 sys.modules['__main__'].TextPreprocessor = TextPreprocessor
 
+# Allow Windows to load Linux-path-based joblib models
+pathlib.PosixPath = pathlib.WindowsPath
 
-st.set_page_config(page_title="ML App", layout="wide")
+st.set_page_config(page_title="Banking Complaint Classifier", layout="wide")
 
-# Initialize page state
-if "page" not in st.session_state:
-    st.session_state.page = "home"
+# -----------------------------
+# Load Models with Caching
+# -----------------------------
+@st.cache_resource
+def load_model(path):
+    try:
+        return joblib.load(path)
+    except FileNotFoundError:
+        st.error(f"❌ Model file not found: {path}")
+        return None
 
-# Navigation logic
-def go_to(page_name):
-    st.session_state.page = page_name
+model_6 = load_model("model2.pkl")
+model_3 = load_model("model1.pkl")
 
-def back_home():
-    st.session_state.page = "home"
+classes_6 = ['Banking and Payments', 'Credit Card', 'Credit Reporting', 'Debt collection', 'Loan', 'Mortgage']
+classes_3 = ["Banking & Payments", "Credit & Debt", "Loans & Mortgages"]
 
-def go_to_notebook(url):
-    st.markdown(f"""
-        <a href="{url}" target="_blank">
-            <button style='padding: 0.5em 1em; font-size: 16px; border: 0.01rem solid; background: none;'>📘 Open Notebook</button>
-        </a>
-    """, unsafe_allow_html=True)
+# -----------------------------
+# Sidebar: Model Selection
+# -----------------------------
+st.sidebar.title("🏦 Banking Complaint Classifier")
+model_choice = st.sidebar.radio("Select Model:", ("6-Class Model", "3-Class Model"))
 
+st.sidebar.markdown("**Notebook Links:**")
+st.sidebar.markdown("[📓 6-Class Model Notebook](https://www.kaggle.com/code/pbhatt009/downsampling-the-bank-data-model-2)")
+st.sidebar.markdown("[📓 3-Class Model Notebook](https://www.kaggle.com/code/pbhatt009/downsampling-the-bank-data)")
 
-    
+# Display classes
+st.subheader("📌 Classes for Selected Model")
+st.write(", ".join(classes_6 if model_choice == "6-Class Model" else classes_3))
 
-# --- Page: Home ---
-if st.session_state.page == "home":
-    st.title("🧠 Welcome to ML Model Showcase")
+# -----------------------------
+# User Input
+# -----------------------------
+complaint_text = st.text_area("✍️ Enter the complaint text here:")
 
-    st.markdown("### Choose a model to explore:")
+# -----------------------------
+# Classification Logic
+# -----------------------------
+if st.button("🚀 Classify"):
+    if not complaint_text.strip():
+        st.warning("⚠️ Please enter a complaint before classification.")
+    else:
+        model = model_6 if model_choice == "6-Class Model" else model_3
+        class_names = classes_6 if model_choice == "6-Class Model" else classes_3
 
-    col1,col2,col3= st.columns(3)
+        if model is None:
+            st.error("🚨 Model not loaded yet.")
+        else:
+            probs = model.predict_proba([complaint_text])[0]
+            pred_class = class_names[np.argmax(probs)]
+            
+            st.success(f"**Predicted Class:** {pred_class}")
 
-###############  IRIS DATSET #################
+            # Prepare DataFrame for visualization
+            df = pd.DataFrame({"Class": class_names, "Confidence": probs * 100})
 
-    with col1:
-        st.button("🌸 Iris Classifier", on_click=go_to, args=("iris",))
-        st.image("iris.jpeg", width=300)
+            # Display Altair bar chart
+            import altair as alt
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X("Class", sort=None),
+                y=alt.Y("Confidence", title="Confidence (%)"),
+                tooltip=["Class", alt.Tooltip("Confidence", format=".2f")]
+            ).properties(width=700, height=400)
+            st.altair_chart(chart, use_container_width=True)
 
-    
-############# Heart Deases Prediction ##########
-    with col2:
-        st.button("🫀 Heart Deases Prediction", on_click=go_to, args=("heart",))
-        go_to_notebook("https://www.kaggle.com/code/pbhatt009/heart-disease-predication")
-        st.image("heart.jpg", width=300)
-
-############# Banking Complaint Classifier ##########
-    with col3:
-        st.button("🏦 Banking Complaint Classifier", on_click=go_to, args=("banking",))
-
-        st.image("bank.jpg", width=300)
-
-######             Naviagtion   #############
-elif st.session_state.page == "iris":
-    st.button("🔙 Back", on_click=back_home)
-    show_iris()
-
-elif st.session_state.page == "heart":
-    st.button("🔙 Back", on_click=back_home)
-    Heart()
-
-elif st.session_state.page == "banking":
-    st.button("🔙 Back", on_click=back_home)
-    bank_fn()
-
+            # Show detailed probabilities
+            st.subheader("🔹 Detailed Probabilities")
+            for cls, p in zip(class_names, probs):
+                st.write(f"{cls}: {p*100:.2f}%")
